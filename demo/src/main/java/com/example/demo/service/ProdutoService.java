@@ -1,8 +1,8 @@
 package com.example.demo.service;
 
 
-import com.example.demo.dto.ProdutoRequestDTO;
-import com.example.demo.dto.ProdutoResponseDTO;
+import com.example.demo.dto.request.ProdutoRequestDTO;
+import com.example.demo.dto.response.ProdutoResponseDTO;
 import com.example.demo.entity.Produto;
 import com.example.demo.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
