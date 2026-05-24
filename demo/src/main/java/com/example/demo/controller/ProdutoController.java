@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
 
-import com.example.demo.dto.ProdutoRequestDTO;
-import com.example.demo.dto.ProdutoResponseDTO;
+import com.example.demo.dto.request.ProdutoRequestDTO;
+import com.example.demo.dto.response.ProdutoResponseDTO;
 import com.example.demo.service.ProdutoService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
