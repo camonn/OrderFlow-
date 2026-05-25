@@ -6,9 +6,9 @@ import com.example.demo.entity.Cliente;
 import com.example.demo.exception.ClienteNotFoundException;
 import com.example.demo.exception.EmailJaCadastradoException;
 import com.example.demo.repository.ClienteRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ClienteService {
@@ -33,11 +33,11 @@ public class ClienteService {
         return toDTO(repository.save(cliente));
     }
 
-    public List<ClienteResponseDTO> listar() {
-        return repository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .toList();
+    public Page<ClienteResponseDTO> listar(String nome, Pageable pageable) {
+        if (nome != null && !nome.isBlank()) {
+            return repository.findByNomeContainingIgnoreCase(nome, pageable).map(this::toDTO);
+        }
+        return repository.findAll(pageable).map(this::toDTO);
     }
 
     public ClienteResponseDTO buscarPorId(Long id) {
