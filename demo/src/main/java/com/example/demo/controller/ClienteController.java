@@ -4,11 +4,13 @@ import com.example.demo.dto.request.ClienteRequestDTO;
 import com.example.demo.dto.response.ClienteResponseDTO;
 import com.example.demo.service.ClienteService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/clientes")
@@ -26,8 +28,11 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClienteResponseDTO>> listar() {
-        return ResponseEntity.ok(service.listar());
+    public ResponseEntity<Page<ClienteResponseDTO>> listar(
+            @RequestParam(required = false) String nome,
+            @PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(service.listar(nome, pageable));
     }
 
     @GetMapping("/{id}")
