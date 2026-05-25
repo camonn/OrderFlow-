@@ -66,4 +66,21 @@ public class PedidoService {
 
         return pedidoRepository.save(pedido);
     }
+
+    public Pedido removerItem(Long pedidoId, Long itemId) {
+
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+        ItemPedido itemPedido = itemPedidoRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item não encontrado"));
+
+        pedido.setTotalValue(
+                pedido.getTotalValue() - itemPedido.getSubtotal()
+        );
+
+        itemPedidoRepository.delete(itemPedido);
+
+        return pedidoRepository.save(pedido);
+    }
 }

@@ -32,4 +32,12 @@ public class PedidoController {
     ) {
         return pedidoService.adicionarItem(pedidoId, dto);
     }
+
+    @DeleteMapping("/{pedidoId}/itens/{itemId}")
+    public Pedido removerItem(
+            @PathVariable Long pedidoId,
+            @PathVariable Long itemId
+    ) {
+        return pedidoService.removerItem(pedidoId, itemId);
+    }
 }
