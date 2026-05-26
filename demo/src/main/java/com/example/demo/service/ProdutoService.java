@@ -1,13 +1,13 @@
 package com.example.demo.service;
 
-
 import com.example.demo.dto.request.ProdutoRequestDTO;
 import com.example.demo.dto.response.ProdutoResponseDTO;
 import com.example.demo.entity.Produto;
+import com.example.demo.exception.ProdutoNotFoundException;
 import com.example.demo.repository.ProdutoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ProdutoService {
@@ -31,18 +31,31 @@ public class ProdutoService {
         return toDTO(salvo);
     }
 
-    public List<ProdutoResponseDTO> listar() {
+    public Page<ProdutoResponseDTO> listar(String nome, Pageable pageable) {
 
-        return repository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        Page<Produto> produtos;
+
+        if (nome != null && !nome.isBlank()) {
+            produtos = repository.findByNameContainingIgnoreCase(nome, pageable);
+        } else {
+            produtos = repository.findAll(pageable);
+        }
+
+        return produtos.map(this::toDTO);
+    }
+
+    public ProdutoResponseDTO buscarPorId(Long id) {
+
+        Produto produto = repository.findById(id)
+                .orElseThrow(() -> new ProdutoNotFoundException(id));
+
+        return toDTO(produto);
     }
 
     public ProdutoResponseDTO atualizar(Long id, ProdutoRequestDTO dto) {
 
         Produto produto = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                .orElseThrow(() -> new ProdutoNotFoundException(id));
 
         produto.setName(dto.name());
         produto.setDescription(dto.description());
@@ -54,6 +67,11 @@ public class ProdutoService {
     }
 
     public void deletar(Long id) {
+
+        if (!repository.existsById(id)) {
+            throw new ProdutoNotFoundException(id);
+        }
+
         repository.deleteById(id);
     }
 

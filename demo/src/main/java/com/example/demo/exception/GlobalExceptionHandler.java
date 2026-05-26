@@ -45,4 +45,16 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErroResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Erro interno no servidor"));
     }
+
+    @ExceptionHandler(ProdutoNotFoundException.class)
+    public ResponseEntity<ErroResponseDTO> handleProdutoNotFound(
+            ProdutoNotFoundException ex
+    ) {
+        ErroResponseDTO erro = new ErroResponseDTO(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+    }
 }
