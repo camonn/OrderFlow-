@@ -47,14 +47,30 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ProdutoNotFoundException.class)
-    public ResponseEntity<ErroResponseDTO> handleProdutoNotFound(
-            ProdutoNotFoundException ex
-    ) {
-        ErroResponseDTO erro = new ErroResponseDTO(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage()
-        );
+    public ResponseEntity<ErroResponseDTO> handleProdutoNotFound(ProdutoNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErroResponseDTO(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
+    }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+    @ExceptionHandler(PedidoNotFoundException.class)
+    public ResponseEntity<ErroResponseDTO> handlePedidoNotFound(PedidoNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErroResponseDTO(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(ItemPedidoNotFoundException.class)
+    public ResponseEntity<ErroResponseDTO> handleItemPedidoNotFound(ItemPedidoNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErroResponseDTO(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(AlteracaoPedidoNaoPermitidaException.class)
+    public ResponseEntity<ErroResponseDTO> handleAlteracaoPedidoNaoPermitida(AlteracaoPedidoNaoPermitidaException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new ErroResponseDTO(HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.getMessage()));
     }
 }
