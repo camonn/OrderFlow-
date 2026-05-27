@@ -5,6 +5,10 @@ import com.example.demo.entity.Cliente;
 import com.example.demo.entity.ItemPedido;
 import com.example.demo.entity.Pedido;
 import com.example.demo.entity.Produto;
+import com.example.demo.exception.ClienteNotFoundException;
+import com.example.demo.exception.ItemPedidoNotFoundException;
+import com.example.demo.exception.PedidoNotFoundException;
+import com.example.demo.exception.ProdutoNotFoundException;
 import com.example.demo.repository.ClienteRepository;
 import com.example.demo.repository.ItemPedidoRepository;
 import com.example.demo.repository.PedidoRepository;
@@ -27,7 +31,7 @@ public class PedidoService {
     public Pedido criarPedido(Long clienteId) {
 
         Cliente cliente = clienteRepository.findById(clienteId)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                .orElseThrow(() -> new ClienteNotFoundException(clienteId));
 
         Pedido pedido = Pedido.builder()
                 .cliente(cliente)
@@ -46,10 +50,10 @@ public class PedidoService {
     public Pedido adicionarItem(Long pedidoId, ItemPedidoRequestDTO dto) {
 
         Pedido pedido = pedidoRepository.findById(pedidoId)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+                .orElseThrow(() -> new PedidoNotFoundException(pedidoId));
 
         Produto produto = produtoRepository.findById(dto.getProdutoId())
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                .orElseThrow(() -> new ProdutoNotFoundException(dto.getProdutoId()));
 
         Double subtotal = produto.getPrice() * dto.getAmount();
 
@@ -70,10 +74,14 @@ public class PedidoService {
     public Pedido removerItem(Long pedidoId, Long itemId) {
 
         Pedido pedido = pedidoRepository.findById(pedidoId)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+                .orElseThrow(() -> new PedidoNotFoundException(pedidoId));
 
         ItemPedido itemPedido = itemPedidoRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item não encontrado"));
+                .orElseThrow(() -> new ItemPedidoNotFoundException(itemId));
+
+        if (!itemPedido.getPedido().getId().equals(pedidoId)) {
+            throw new ItemPedidoNotFoundException(itemId);
+        }
 
         pedido.setTotalValue(
                 pedido.getTotalValue() - itemPedido.getSubtotal()
