@@ -73,4 +73,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(new ErroResponseDTO(HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.getMessage()));
     }
+
+    @ExceptionHandler(ClienteComPedidosException.class)
+    public ResponseEntity<ErroResponseDTO> handleClienteComPedidos(ClienteComPedidosException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErroResponseDTO(HttpStatus.CONFLICT.value(), ex.getMessage()));
+    }
 }
