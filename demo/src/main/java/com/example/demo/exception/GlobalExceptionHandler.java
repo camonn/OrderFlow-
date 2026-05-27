@@ -80,4 +80,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(new ErroResponseDTO(HttpStatus.CONFLICT.value(), ex.getMessage()));
     }
+
+    @ExceptionHandler(ProdutoEmPedidoException.class)
+    public ResponseEntity<ErroResponseDTO> handleProdutoEmPedido(ProdutoEmPedidoException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErroResponseDTO(HttpStatus.CONFLICT.value(), ex.getMessage()));
+    }
 }
