@@ -4,6 +4,7 @@ import com.example.demo.dto.request.ItemPedidoRequestDTO;
 import com.example.demo.entity.Cliente;
 import com.example.demo.entity.ItemPedido;
 import com.example.demo.entity.Pedido;
+import com.example.demo.entity.PedidoStatus;
 import com.example.demo.entity.Produto;
 import com.example.demo.exception.ClienteNotFoundException;
 import com.example.demo.exception.ItemPedidoNotFoundException;
@@ -36,7 +37,7 @@ public class PedidoService {
         Pedido pedido = Pedido.builder()
                 .cliente(cliente)
                 .data(LocalDateTime.now())
-                .status("PENDENTE")
+                .status(PedidoStatus.PENDENTE)
                 .totalValue(0.0)
                 .build();
 
