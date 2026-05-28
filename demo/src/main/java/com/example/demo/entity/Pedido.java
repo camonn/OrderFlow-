@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.enums.PedidoStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;

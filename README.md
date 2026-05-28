@@ -63,7 +63,8 @@ src/main/java/com/example/demo/
 │   ├── Cliente.java
 │   ├── Produto.java
 │   ├── Pedido.java
-│   ├── ItemPedido.java
+│   └── ItemPedido.java
+├── enums/             # Enumerações do domínio
 │   └── PedidoStatus.java
 ├── dto/
 │   ├── request/       # Dados de entrada

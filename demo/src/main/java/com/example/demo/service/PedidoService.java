@@ -5,7 +5,7 @@ import com.example.demo.dto.request.ItemPedidoRequestDTO;
 import com.example.demo.entity.Cliente;
 import com.example.demo.entity.ItemPedido;
 import com.example.demo.entity.Pedido;
-import com.example.demo.entity.PedidoStatus;
+import com.example.demo.enums.PedidoStatus;
 import com.example.demo.entity.Produto;
 import com.example.demo.exception.AlteracaoPedidoNaoPermitidaException;
 import com.example.demo.exception.ClienteNotFoundException;

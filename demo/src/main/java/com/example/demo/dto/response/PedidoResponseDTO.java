@@ -1,6 +1,6 @@
 package com.example.demo.dto.response;
 
-import com.example.demo.entity.PedidoStatus;
+import com.example.demo.enums.PedidoStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
