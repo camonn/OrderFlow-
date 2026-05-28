@@ -1,10 +1,17 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.request.AtualizarStatusPedidoRequestDTO;
 import com.example.demo.dto.request.ItemPedidoRequestDTO;
 import com.example.demo.entity.Cliente;
 import com.example.demo.entity.ItemPedido;
 import com.example.demo.entity.Pedido;
+import com.example.demo.entity.PedidoStatus;
 import com.example.demo.entity.Produto;
+import com.example.demo.exception.AlteracaoPedidoNaoPermitidaException;
+import com.example.demo.exception.ClienteNotFoundException;
+import com.example.demo.exception.ItemPedidoNotFoundException;
+import com.example.demo.exception.PedidoNotFoundException;
+import com.example.demo.exception.ProdutoNotFoundException;
 import com.example.demo.repository.ClienteRepository;
 import com.example.demo.repository.ItemPedidoRepository;
 import com.example.demo.repository.PedidoRepository;
@@ -27,12 +34,12 @@ public class PedidoService {
     public Pedido criarPedido(Long clienteId) {
 
         Cliente cliente = clienteRepository.findById(clienteId)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                .orElseThrow(() -> new ClienteNotFoundException(clienteId));
 
         Pedido pedido = Pedido.builder()
                 .cliente(cliente)
                 .data(LocalDateTime.now())
-                .status("PENDENTE")
+                .status(PedidoStatus.PENDENTE)
                 .totalValue(0.0)
                 .build();
 
@@ -43,13 +50,24 @@ public class PedidoService {
         return pedidoRepository.findAll();
     }
 
+    public Pedido buscarPorId(Long pedidoId) {
+        return pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new PedidoNotFoundException(pedidoId));
+    }
+
     public Pedido adicionarItem(Long pedidoId, ItemPedidoRequestDTO dto) {
 
         Pedido pedido = pedidoRepository.findById(pedidoId)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+                .orElseThrow(() -> new PedidoNotFoundException(pedidoId));
+
+        if (pedido.getStatus() != PedidoStatus.PENDENTE) {
+            throw new AlteracaoPedidoNaoPermitidaException(
+                    "Não é possível adicionar itens a um pedido com status " + pedido.getStatus()
+            );
+        }
 
         Produto produto = produtoRepository.findById(dto.getProdutoId())
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                .orElseThrow(() -> new ProdutoNotFoundException(dto.getProdutoId()));
 
         Double subtotal = produto.getPrice() * dto.getAmount();
 
@@ -70,17 +88,51 @@ public class PedidoService {
     public Pedido removerItem(Long pedidoId, Long itemId) {
 
         Pedido pedido = pedidoRepository.findById(pedidoId)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+                .orElseThrow(() -> new PedidoNotFoundException(pedidoId));
+
+        if (pedido.getStatus() != PedidoStatus.PENDENTE) {
+            throw new AlteracaoPedidoNaoPermitidaException(
+                    "Não é possível remover itens de um pedido com status " + pedido.getStatus()
+            );
+        }
 
         ItemPedido itemPedido = itemPedidoRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item não encontrado"));
+                .orElseThrow(() -> new ItemPedidoNotFoundException(itemId));
 
-        pedido.setTotalValue(
-                pedido.getTotalValue() - itemPedido.getSubtotal()
-        );
+        if (!itemPedido.getPedido().getId().equals(pedidoId)) {
+            throw new ItemPedidoNotFoundException(itemId);
+        }
+
+        pedido.setTotalValue(pedido.getTotalValue() - itemPedido.getSubtotal());
 
         itemPedidoRepository.delete(itemPedido);
 
         return pedidoRepository.save(pedido);
+    }
+
+    public Pedido atualizarStatus(Long pedidoId, AtualizarStatusPedidoRequestDTO dto) {
+
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new PedidoNotFoundException(pedidoId));
+
+        validarTransicaoDeStatus(pedido.getStatus(), dto.status());
+
+        pedido.setStatus(dto.status());
+
+        return pedidoRepository.save(pedido);
+    }
+
+    private void validarTransicaoDeStatus(PedidoStatus atual, PedidoStatus novo) {
+        boolean transicaoValida = switch (atual) {
+            case PENDENTE -> novo == PedidoStatus.CONFIRMADO || novo == PedidoStatus.CANCELADO;
+            case CONFIRMADO -> novo == PedidoStatus.ENTREGUE || novo == PedidoStatus.CANCELADO;
+            case ENTREGUE, CANCELADO -> false;
+        };
+
+        if (!transicaoValida) {
+            throw new AlteracaoPedidoNaoPermitidaException(
+                    "Transição de status inválida: " + atual + " → " + novo
+            );
+        }
     }
 }

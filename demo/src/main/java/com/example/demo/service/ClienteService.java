@@ -3,9 +3,11 @@ package com.example.demo.service;
 import com.example.demo.dto.request.ClienteRequestDTO;
 import com.example.demo.dto.response.ClienteResponseDTO;
 import com.example.demo.entity.Cliente;
+import com.example.demo.exception.ClienteComPedidosException;
 import com.example.demo.exception.ClienteNotFoundException;
 import com.example.demo.exception.EmailJaCadastradoException;
 import com.example.demo.repository.ClienteRepository;
+import com.example.demo.repository.PedidoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,9 +16,11 @@ import org.springframework.stereotype.Service;
 public class ClienteService {
 
     private final ClienteRepository repository;
+    private final PedidoRepository pedidoRepository;
 
-    public ClienteService(ClienteRepository repository) {
+    public ClienteService(ClienteRepository repository, PedidoRepository pedidoRepository) {
         this.repository = repository;
+        this.pedidoRepository = pedidoRepository;
     }
 
     public ClienteResponseDTO criar(ClienteRequestDTO dto) {
@@ -63,6 +67,9 @@ public class ClienteService {
     public void deletar(Long id) {
         if (!repository.existsById(id)) {
             throw new ClienteNotFoundException(id);
+        }
+        if (pedidoRepository.existsByClienteId(id)) {
+            throw new ClienteComPedidosException(id);
         }
         repository.deleteById(id);
     }

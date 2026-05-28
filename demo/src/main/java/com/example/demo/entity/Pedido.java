@@ -22,7 +22,8 @@ public class Pedido {
 
     private LocalDateTime data;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PedidoStatus status;
 
     private Double totalValue;
 
@@ -31,6 +32,6 @@ public class Pedido {
     private Cliente cliente;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ItemPedido> itens;
 }

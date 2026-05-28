@@ -3,7 +3,9 @@ package com.example.demo.service;
 import com.example.demo.dto.request.ProdutoRequestDTO;
 import com.example.demo.dto.response.ProdutoResponseDTO;
 import com.example.demo.entity.Produto;
+import com.example.demo.exception.ProdutoEmPedidoException;
 import com.example.demo.exception.ProdutoNotFoundException;
+import com.example.demo.repository.ItemPedidoRepository;
 import com.example.demo.repository.ProdutoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +15,11 @@ import org.springframework.stereotype.Service;
 public class ProdutoService {
 
     private final ProdutoRepository repository;
+    private final ItemPedidoRepository itemPedidoRepository;
 
-    public ProdutoService(ProdutoRepository repository) {
+    public ProdutoService(ProdutoRepository repository, ItemPedidoRepository itemPedidoRepository) {
         this.repository = repository;
+        this.itemPedidoRepository = itemPedidoRepository;
     }
 
     public ProdutoResponseDTO criar(ProdutoRequestDTO dto) {
@@ -70,6 +74,10 @@ public class ProdutoService {
 
         if (!repository.existsById(id)) {
             throw new ProdutoNotFoundException(id);
+        }
+
+        if (itemPedidoRepository.existsByProdutoId(id)) {
+            throw new ProdutoEmPedidoException(id);
         }
 
         repository.deleteById(id);
